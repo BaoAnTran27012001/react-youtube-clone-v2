@@ -4,7 +4,6 @@ import { List } from "lucide-react";
 
 const Card = ({ videoData, isPlaylist, isChannel }) => {
   const videoId = videoData?.contentDetails?.upload?.videoId;
-
   return (
     <Link
       to={
@@ -38,7 +37,7 @@ const Card = ({ videoData, isPlaylist, isChannel }) => {
           <div className="mt-4 flex gap-2">
             {!isChannel && (
               <img
-                src={videoData?.channelThumbnail}
+                src={videoData?.channelInfo.avatarUrl}
                 className="w-10 h-10 rounded-full flex-none"
               />
             )}

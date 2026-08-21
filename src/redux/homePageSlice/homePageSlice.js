@@ -14,7 +14,28 @@ export const fetchHomeVideoList = createAsyncThunk(
           import.meta.env.VITE_YOUTUBE_API_KEY
         }`,
       );
-      return response.data;
+      const videoData = response.data.items;
+      const channelIds = videoData
+        .map((video) => video.snippet.channelId)
+        .join(",");
+      const channelData = await api.get(
+        `channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelIds}&key=${
+          import.meta.env.VITE_YOUTUBE_API_KEY
+        }`,
+      );
+      const channelList = channelData.data.items;
+      const mergedData = videoData.map((video) => {
+        const channel = channelList.find(
+          (channel) => channel.id === video.snippet.channelId,
+        );
+        return {
+          ...video,
+          channelInfo: {
+            avatarUrl: channel?.snippet?.thumbnails?.default?.url || "",
+          },
+        };
+      });
+      return mergedData;
     } catch (error) {
       // error.response.data.error.message
       console.log(error);

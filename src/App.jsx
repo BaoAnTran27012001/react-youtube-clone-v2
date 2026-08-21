@@ -6,6 +6,7 @@ import { useState } from "react";
 function App() {
   // Làm sao trích được dữ liệu
   const [categoryId, setCategoryId] = useState(null);
+
   return (
     <>
       <Header setCategoryId={setCategoryId} />
