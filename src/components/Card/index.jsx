@@ -38,7 +38,7 @@ const Card = ({ videoData, isPlaylist, isChannel }) => {
           <div className="mt-4 flex gap-2">
             {!isChannel && (
               <img
-                src={videoData?.channelThumbnail}
+                src={videoData?.channelAvatar}
                 className="w-10 h-10 rounded-full flex-none"
               />
             )}

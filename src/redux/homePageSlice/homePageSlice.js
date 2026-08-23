@@ -3,18 +3,28 @@ import api from "../../apis";
 const initialState = {
   isLoading: false,
   homeData: [],
+  nextPageToken: "",
+  isLoadMore: false,
   errorMessage: "",
 };
 export const fetchHomeVideoList = createAsyncThunk(
   "homepage/fetchHomeVideoList",
   async ({ categoryId }, thunkApi) => {
+    const { nextPageToken } = thunkApi.getState().homePage;
     try {
       const videoRes = await api.get(
-        `videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=us${categoryId !== null ? `&videoCategoryId=${categoryId}` : ``}&key=${
+        `videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=us${categoryId !== null ? `&videoCategoryId=${categoryId}` : ``}${nextPageToken ? `&pageToken=${nextPageToken}` : ""}&key=${
           import.meta.env.VITE_YOUTUBE_API_KEY
         }`,
       );
+      // data ={
+      // items: [],
+      // nextPageToken:"SDCSF"
+      // }
       const videosData = videoRes.data.items; // khai báo biến để sau này tham chiếu cho dễ
+      const pageToken = videoRes.data.nextPageToken; // ""=>"dsad"
+      console.log(pageToken);
+
       // keo channel Id từ videoData (20 cái)
       const channelIds = videosData
         .map((v) => {
@@ -36,7 +46,10 @@ export const fetchHomeVideoList = createAsyncThunk(
           channelAvatar: channel.snippet.thumbnails.default.url,
         };
       });
-      return mergedData;
+      return {
+        homeData: mergedData,
+        nextPageToken: pageToken,
+      };
     } catch (error) {
       // error.response.data.error.message
       console.log(error);
@@ -49,19 +62,31 @@ export const fetchHomeVideoList = createAsyncThunk(
 const homePageSlice = createSlice({
   name: "homepage",
   initialState,
-  reducers: {},
+  reducers: {
+    switchLoadMore(state, action) {
+      state.isLoadMore = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchHomeVideoList.pending, (state) => {
       // Add user to the state array
-      state.isLoading = true;
-      state.homeData = [];
+      if (!state.isLoadMore) {
+        // true
+        state.isLoading = true;
+        state.homeData = [];
+      }
+
       state.errorMessage = "";
     });
     // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(fetchHomeVideoList.fulfilled, (state, action) => {
       // Add user to the state array
       state.isLoading = false;
-      state.homeData = action.payload;
+      state.homeData = state.isLoadMore
+        ? [...state.homeData, ...action.payload.homeData]
+        : action.payload.homeData; // {homeData:[],nextPageToken:"dasd"};
+      state.nextPageToken = action.payload.nextPageToken;
+      state.isLoadMore = false; // se
       state.errorMessage = "";
     });
     builder.addCase(fetchHomeVideoList.rejected, (state, action) => {
@@ -72,4 +97,5 @@ const homePageSlice = createSlice({
     });
   },
 });
+export const { switchLoadMore } = homePageSlice.actions;
 export default homePageSlice.reducer;
