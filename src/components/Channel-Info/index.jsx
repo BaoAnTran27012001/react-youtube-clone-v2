@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchChannelList } from "../../redux/channelInfoSlice/channelInfoSlice";
 import { fetchActivitiesList } from "../../redux/activitiesSlice/activitiesSlice";
 import api from "../../apis";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Spinner from "../Spinner";
 
 const ChannelInfo = () => {
   const [activeTab, setActiveTab] = useState("videos");
@@ -14,9 +16,10 @@ const ChannelInfo = () => {
   const stateActivities = useSelector(
     (state) => state.activities.activitiesData,
   );
+  const nextPageToken = useSelector((state) => state.activities.nextPageToken);
+  const isLoading = useSelector((state) => state.activities.isLoading);
   const dispatch = useDispatch();
   const params = useParams();
-  console.log(stateActivities);
 
   useEffect(() => {
     dispatch(fetchChannelList(params.id));
@@ -37,6 +40,10 @@ const ChannelInfo = () => {
   useEffect(() => {
     fetchChannelPlaylist();
   }, []);
+  const fetchMore = () => {
+    dispatch(fetchActivitiesList({ params }));
+  };
+
   return (
     <div className="relative">
       {isShowModal && (
@@ -103,24 +110,34 @@ const ChannelInfo = () => {
           </button>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 grid-cols-1 mt-4">
-        {activeTab === "videos"
-          ? stateActivities.items?.length > 0 &&
-            stateActivities.items?.map((video) => {
-              return <Card key={video.id} videoData={video} isChannel={true} />;
-            })
-          : channelPlaylist.length > 0 &&
-            channelPlaylist.map((playlist) => {
-              return (
-                <Card
-                  key={playlist.id}
-                  videoData={playlist}
-                  isChannel={true}
-                  isPlaylist={true}
-                />
-              );
-            })}
-      </div>
+      <InfiniteScroll
+        dataLength={stateActivities.length || 0}
+        loader={<p>Loading...</p>}
+        next={fetchMore}
+        hasMore={nextPageToken}
+      >
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 grid-cols-1 mt-4">
+          {isLoading && <Spinner />}
+          {activeTab === "videos"
+            ? stateActivities?.length > 0 &&
+              stateActivities.map((video) => {
+                return (
+                  <Card key={video.id} videoData={video} isChannel={true} />
+                );
+              })
+            : channelPlaylist.length > 0 &&
+              channelPlaylist.map((playlist) => {
+                return (
+                  <Card
+                    key={playlist.id}
+                    videoData={playlist}
+                    isChannel={true}
+                    isPlaylist={true}
+                  />
+                );
+              })}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 };

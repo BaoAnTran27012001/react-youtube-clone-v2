@@ -2,21 +2,26 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../apis";
 const initialState = {
   isLoading: false,
-  activitiesData: {},
+  activitiesData: [],
+  nextPageToken: "",
   errorMessage: "",
 };
 export const fetchActivitiesList = createAsyncThunk(
   "activities/activitiesList",
   async ({ params }, thunkApi) => {
     try {
-      console.log(params);
-
+      const { nextPageToken } = thunkApi.getState().activities;
       const resActivities = await api.get(
         `activities?part=snippet%2CcontentDetails&channelId=${
           params.id
-        }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
+        }&maxResults=10${nextPageToken ? `&pageToken=${nextPageToken}` : ""}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
       );
+      console.log(resActivities);
+
       const activities = resActivities.data.items;
+      const pageToken = resActivities.data.nextPageToken;
+      console.log("next ", nextPageToken);
+
       const videoIds = activities
         .map((item) => {
           const details = item.contentDetails;
@@ -56,7 +61,7 @@ export const fetchActivitiesList = createAsyncThunk(
         };
       });
 
-      return { ...resActivities.data, items: mergedItems };
+      return { pageToken, items: mergedItems };
     } catch (error) {
       // error.response.data.error.message
       console.log(error);
@@ -74,14 +79,15 @@ const activitiesSlice = createSlice({
     builder.addCase(fetchActivitiesList.pending, (state) => {
       // Add user to the state array
       state.isLoading = true;
-      state.activitiesData = [];
       state.errorMessage = "";
     });
     // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(fetchActivitiesList.fulfilled, (state, action) => {
       // Add user to the state array
+      console.log(action.payload);
       state.isLoading = false;
-      state.activitiesData = action.payload;
+      state.activitiesData = [...state.activitiesData, ...action.payload.items];
+      state.nextPageToken = action.payload.pageToken;
       state.errorMessage = "";
     });
     builder.addCase(fetchActivitiesList.rejected, (state, action) => {
