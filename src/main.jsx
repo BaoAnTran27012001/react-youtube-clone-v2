@@ -25,9 +25,7 @@ const router = createBrowserRouter([
   // => đường link hiện tại + "video" => localhost:5137/auth/video
 ]);
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router} />
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <RouterProvider router={router} />
+  </Provider>,
 );

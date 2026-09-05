@@ -3,45 +3,47 @@ import Card from "../Card";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchChannelList } from "../../redux/channelInfoSlice/channelInfoSlice";
+import { fetchActivitiesList } from "../../redux/activitiesSlice/activitiesSlice";
 import api from "../../apis";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Spinner from "../Spinner";
 
 const ChannelInfo = () => {
   const [activeTab, setActiveTab] = useState("videos");
   const [isShowModal, setIsShowModal] = useState(false);
-  const [channelVideos, setChannelVideos] = useState([]);
   const [channelPlaylist, setChannelPlaylist] = useState([]);
   const stateChannel = useSelector((state) => state.channelInfo.channelData);
+  const stateActivities = useSelector(
+    (state) => state.activities.activitiesData,
+  );
+  const nextPageToken = useSelector((state) => state.activities.nextPageToken);
+  const isLoading = useSelector((state) => state.activities.isLoading);
   const dispatch = useDispatch();
   const params = useParams();
 
   useEffect(() => {
     dispatch(fetchChannelList(params.id));
+    dispatch(fetchActivitiesList({ params }));
   }, [params.id]);
   // ?.items[0] => error
   //  &&
   const channelInfo = stateChannel?.items && stateChannel?.items[0];
-  const fetchChannelVideos = async () => {
-    const response = await api.get(
-      `activities?part=snippet%2CcontentDetails&channelId=${
-        params.id
-      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`
-    );
-
-    setChannelVideos(response.data.items);
-  };
   const fetchChannelPlaylist = async () => {
     const response = await api.get(
       `playlists?part=snippet%2CcontentDetails&channelId=${
         params.id
-      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`
+      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
     );
 
     setChannelPlaylist(response.data.items);
   };
   useEffect(() => {
-    fetchChannelVideos();
     fetchChannelPlaylist();
   }, []);
+  const fetchMore = () => {
+    dispatch(fetchActivitiesList({ params }));
+  };
+
   return (
     <div className="relative">
       {isShowModal && (
@@ -108,24 +110,34 @@ const ChannelInfo = () => {
           </button>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 grid-cols-1 mt-4">
-        {activeTab === "videos"
-          ? channelVideos.length > 0 &&
-            channelVideos.map((video) => {
-              return <Card key={video.id} videoData={video} isChannel={true} />;
-            })
-          : channelPlaylist.length > 0 &&
-            channelPlaylist.map((playlist) => {
-              return (
-                <Card
-                  key={playlist.id}
-                  videoData={playlist}
-                  isChannel={true}
-                  isPlaylist={true}
-                />
-              );
-            })}
-      </div>
+      <InfiniteScroll
+        dataLength={stateActivities.length || 0}
+        loader={<p>Loading...</p>}
+        next={fetchMore}
+        hasMore={nextPageToken}
+      >
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 grid-cols-1 mt-4">
+          {isLoading && <Spinner />}
+          {activeTab === "videos"
+            ? stateActivities?.length > 0 &&
+              stateActivities.map((video) => {
+                return (
+                  <Card key={video.id} videoData={video} isChannel={true} />
+                );
+              })
+            : channelPlaylist.length > 0 &&
+              channelPlaylist.map((playlist) => {
+                return (
+                  <Card
+                    key={playlist.id}
+                    videoData={playlist}
+                    isChannel={true}
+                    isPlaylist={true}
+                  />
+                );
+              })}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 };

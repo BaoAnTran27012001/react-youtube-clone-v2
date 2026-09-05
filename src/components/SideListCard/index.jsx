@@ -1,4 +1,6 @@
-const SideListCard = () => {
+const SideListCard = ({ videoData }) => {
+  console.log(videoData);
+
   return (
     <div className="flex gap-4">
       <div className="bg-pink-500 flex-1 h-[120px]"></div>
