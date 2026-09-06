@@ -1,19 +1,32 @@
+import { Link } from "react-router";
+import { convertDate } from "../../utils/function";
+
 const SideListCard = ({ videoData }) => {
   console.log(videoData);
 
   return (
-    <div className="flex gap-4">
-      <div className="bg-pink-500 flex-1 h-[120px]"></div>
-      <div className="flex-1">
-        <h3>Video Title</h3>
-        <p>Author Name</p>
-        <div className="flex gap-1">
-          <span>Video Views</span>
-          <span>.</span>
-          <span>Video Date</span>
+    <Link
+      to={`/video/${
+        videoData.contentDetails?.upload?.videoId ||
+        videoData.contentDetails?.playlistItem?.resourceId.videoId
+      }`}
+    >
+      <div className="flex gap-4">
+        <img
+          src={videoData.snippet.thumbnails.default.url}
+          alt="side card image"
+        />
+        <div className="flex-1">
+          <h3>{videoData.snippet.title}</h3>
+          <p>{videoData.snippet.channelTitle}</p>
+          <div className="flex gap-1">
+            <span>{videoData.statistics.viewCount}</span>
+            <span>.</span>
+            <span>{convertDate(videoData.snippet.publishedAt)}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

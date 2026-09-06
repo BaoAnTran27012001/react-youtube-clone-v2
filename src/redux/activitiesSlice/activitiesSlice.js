@@ -9,6 +9,8 @@ const initialState = {
 export const fetchActivitiesList = createAsyncThunk(
   "activities/activitiesList",
   async ({ params }, thunkApi) => {
+    console.log(params);
+
     try {
       const { nextPageToken } = thunkApi.getState().activities;
       const resActivities = await api.get(
