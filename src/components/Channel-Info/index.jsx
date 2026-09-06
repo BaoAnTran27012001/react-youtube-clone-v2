@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchChannelList } from "../../redux/channelInfoSlice/channelInfoSlice";
 import api from "../../apis";
+import { fetchActivitiesList } from "../../redux/activitiesSlice/activitiesSlice";
 
 const ChannelInfo = () => {
   const [activeTab, setActiveTab] = useState("videos");
@@ -16,6 +17,7 @@ const ChannelInfo = () => {
 
   useEffect(() => {
     dispatch(fetchChannelList(params.id));
+    dispatch(fetchActivitiesList({ params }));
   }, [params.id]);
   // ?.items[0] => error
   //  &&
@@ -24,7 +26,7 @@ const ChannelInfo = () => {
     const response = await api.get(
       `activities?part=snippet%2CcontentDetails&channelId=${
         params.id
-      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`
+      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
     );
 
     setChannelVideos(response.data.items);
@@ -33,7 +35,7 @@ const ChannelInfo = () => {
     const response = await api.get(
       `playlists?part=snippet%2CcontentDetails&channelId=${
         params.id
-      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`
+      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
     );
 
     setChannelPlaylist(response.data.items);
