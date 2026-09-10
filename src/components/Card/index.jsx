@@ -3,7 +3,10 @@ import { convertDate, convertDuration } from "../../utils/function";
 import { List } from "lucide-react";
 
 const Card = ({ videoData, isPlaylist, isChannel }) => {
-  const videoId = videoData?.contentDetails?.upload?.videoId;
+  const videoId =
+    videoData?.contentDetails?.upload?.videoId || videoData?.id?.videoId;
+  console.log(videoData);
+
   return (
     <Link
       to={
@@ -27,7 +30,10 @@ const Card = ({ videoData, isPlaylist, isChannel }) => {
             )}
           </span>
           <img
-            src={videoData?.snippet?.thumbnails?.standard?.url}
+            src={
+              videoData?.snippet?.thumbnails?.standard?.url ||
+              videoData?.snippet?.thumbnails?.high?.url
+            }
             className="h-[240px] w-full"
           />
         </div>
@@ -37,8 +43,12 @@ const Card = ({ videoData, isPlaylist, isChannel }) => {
           <div className="mt-4 flex gap-2">
             {!isChannel && (
               <img
-                src={videoData?.channelInfo.avatarUrl}
+                src={videoData?.channelInfo?.avatarUrl}
                 className="w-10 h-10 rounded-full flex-none"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://via.placeholder.com/80";
+                }}
               />
             )}
             <div>

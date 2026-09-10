@@ -9,6 +9,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import VideoDetail from "./components/VideoDetail/index.jsx";
 import ChannelInfo from "./components/Channel-Info/index.jsx";
 import Playlist from "./components/Playlist/index.jsx";
+import Search from "./components/Search/index.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: "video/:id", element: <VideoDetail /> },
       { path: "channel/:id", element: <ChannelInfo /> },
       { path: "playlist/:id", element: <Playlist /> },
+      { path: "search/", element: <Search /> },
     ],
   },
   // basueUrl

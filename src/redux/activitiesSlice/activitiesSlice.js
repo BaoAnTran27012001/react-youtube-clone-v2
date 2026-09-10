@@ -9,8 +9,6 @@ const initialState = {
 export const fetchActivitiesList = createAsyncThunk(
   "activities/activitiesList",
   async ({ params }, thunkApi) => {
-    console.log(params);
-
     try {
       const { nextPageToken } = thunkApi.getState().activities;
       const resActivities = await api.get(
@@ -18,11 +16,9 @@ export const fetchActivitiesList = createAsyncThunk(
           params.id
         }&maxResults=10${nextPageToken ? `&pageToken=${nextPageToken}` : ""}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
       );
-      console.log(resActivities);
 
       const activities = resActivities.data.items;
       const pageToken = resActivities.data.nextPageToken;
-      console.log("next ", nextPageToken);
 
       const videoIds = activities
         .map((item) => {
@@ -86,7 +82,6 @@ const activitiesSlice = createSlice({
     // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(fetchActivitiesList.fulfilled, (state, action) => {
       // Add user to the state array
-      console.log(action.payload);
       state.isLoading = false;
       state.activitiesData = [...state.activitiesData, ...action.payload.items];
       state.nextPageToken = action.payload.pageToken;

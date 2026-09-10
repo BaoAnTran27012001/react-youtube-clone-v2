@@ -2,8 +2,6 @@ import { Link } from "react-router";
 import { convertDate } from "../../utils/function";
 
 const SideListCard = ({ videoData }) => {
-  console.log(videoData);
-
   return (
     <Link
       to={`/video/${

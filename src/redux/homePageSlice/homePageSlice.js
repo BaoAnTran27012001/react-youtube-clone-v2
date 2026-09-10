@@ -12,7 +12,6 @@ export const fetchHomeVideoList = createAsyncThunk(
   async ({ categoryId }, thunkApi) => {
     try {
       const { nextPageToken } = thunkApi.getState().homePage;
-      console.log(nextPageToken);
 
       const response = await api.get(
         `videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=us${categoryId !== null ? `&videoCategoryId=${categoryId}` : ``}${nextPageToken ? `&pageToken=${nextPageToken}` : ""}&key=${
@@ -72,7 +71,6 @@ const homePageSlice = createSlice({
     builder.addCase(fetchHomeVideoList.fulfilled, (state, action) => {
       // Add user to the state array
       state.isLoading = false;
-      console.log(action.payload);
 
       state.homeData = state.isLoadMore
         ? [...state.homeData, ...action.payload.homeData]
