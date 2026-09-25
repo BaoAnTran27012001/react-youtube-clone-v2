@@ -3,7 +3,9 @@ import { convertDate, convertDuration } from "../../utils/function";
 import { List } from "lucide-react";
 
 const Card = ({ videoData, isPlaylist, isChannel }) => {
-  const videoId = videoData?.contentDetails?.upload?.videoId;
+  const videoId =
+    videoData?.contentDetails?.upload?.videoId ||
+    videoData.contentDetails.playlistItem?.resourceId?.videoId;
 
   return (
     <Link
@@ -24,7 +26,10 @@ const Card = ({ videoData, isPlaylist, isChannel }) => {
                 <span>{videoData?.contentDetails?.itemCount} Videos</span>
               </span>
             ) : (
-              convertDuration(videoData?.contentDetails?.duration)
+              convertDuration(
+                videoData?.contentDetails?.duration ||
+                  videoData.videoContentDetails.duration,
+              )
             )}
           </span>
           <img

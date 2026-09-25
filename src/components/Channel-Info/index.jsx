@@ -9,9 +9,12 @@ import { fetchActivitiesList } from "../../redux/activitiesSlice/activitiesSlice
 const ChannelInfo = () => {
   const [activeTab, setActiveTab] = useState("videos");
   const [isShowModal, setIsShowModal] = useState(false);
-  const [channelVideos, setChannelVideos] = useState([]);
   const [channelPlaylist, setChannelPlaylist] = useState([]);
   const stateChannel = useSelector((state) => state.channelInfo.channelData);
+  const activitiesData = useSelector(
+    (state) => state.activities.activitiesData,
+  );
+
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -22,15 +25,7 @@ const ChannelInfo = () => {
   // ?.items[0] => error
   //  &&
   const channelInfo = stateChannel?.items && stateChannel?.items[0];
-  const fetchChannelVideos = async () => {
-    const response = await api.get(
-      `activities?part=snippet%2CcontentDetails&channelId=${
-        params.id
-      }&maxResults=10&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
-    );
 
-    setChannelVideos(response.data.items);
-  };
   const fetchChannelPlaylist = async () => {
     const response = await api.get(
       `playlists?part=snippet%2CcontentDetails&channelId=${
@@ -41,7 +36,6 @@ const ChannelInfo = () => {
     setChannelPlaylist(response.data.items);
   };
   useEffect(() => {
-    fetchChannelVideos();
     fetchChannelPlaylist();
   }, []);
   return (
@@ -112,8 +106,8 @@ const ChannelInfo = () => {
       </div>
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 grid-cols-1 mt-4">
         {activeTab === "videos"
-          ? channelVideos.length > 0 &&
-            channelVideos.map((video) => {
+          ? activitiesData.length > 0 &&
+            activitiesData.map((video) => {
               return <Card key={video.id} videoData={video} isChannel={true} />;
             })
           : channelPlaylist.length > 0 &&

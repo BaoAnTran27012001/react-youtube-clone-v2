@@ -23,8 +23,8 @@ export const fetchActivitiesList = createAsyncThunk(
       const videoIds = activitiesData
         .map((a) => {
           return (
-            a.contentDetails.upload.videoId ||
-            a.contentDetails.playlistItem.resourceId.videoId
+            a.contentDetails.upload?.videoId ||
+            a.contentDetails.playlistItem?.resourceId?.videoId
           );
         })
         .join(",");
@@ -38,8 +38,8 @@ export const fetchActivitiesList = createAsyncThunk(
       const mergedData = activitiesData.map((a) => {
         // Tìm trong videoData có video nào mà id của nó bằng với id trong activities
         const currentId =
-          a.contentDetails.upload.videoId ||
-          a.contentDetails.playlistItem.resourceId.videoId;
+          a.contentDetails.upload?.videoId ||
+          a.contentDetails.playlistItem?.resourceId?.videoId;
         const matchVideo = videoData.find((v) => {
           return v.id === currentId;
         });
@@ -47,7 +47,7 @@ export const fetchActivitiesList = createAsyncThunk(
         // [1].statistics
         return {
           ...a,
-          contentDetails: matchVideo.contentDetails,
+          videoContentDetails: matchVideo.contentDetails,
           statistics: matchVideo.statistics,
         };
       });
@@ -76,7 +76,6 @@ const activitiesSlice = createSlice({
     builder.addCase(fetchActivitiesList.fulfilled, (state, action) => {
       // Add user to the state array
       state.isLoading = false;
-      console.log(action.payload);
       state.activitiesData = action.payload;
       // state.nextPageToken = action.payload.nextPageToken;
       // state.isLoadMore = false; // se

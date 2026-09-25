@@ -11,10 +11,10 @@ export const fetchVideoDetailData = createAsyncThunk(
     const response = await api.get(
       `videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${
         import.meta.env.VITE_YOUTUBE_API_KEY
-      }`
+      }`,
     );
     return response.data;
-  }
+  },
 );
 const watchPageSlice = createSlice({
   name: "watchPage",
@@ -35,7 +35,7 @@ const watchPageSlice = createSlice({
     builder.addCase(fetchVideoDetailData.fulfilled, (state, action) => {
       // Add user to the state array
       state.isLoading = false;
-      state.videoDetailData = action.payload;
+      state.videoDetailData = action.payload.items[0];
       state.isError = false;
     });
     builder.addCase(fetchVideoDetailData.rejected, (state) => {
