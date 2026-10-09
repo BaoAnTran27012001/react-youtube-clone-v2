@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVideoDetailData } from "../../redux/watchPageSlice/watchPageSlice";
 import { fetchActivitiesList } from "../../redux/activitiesSlice/activitiesSlice";
+import Spinner from "../Spinner";
 
 const SideList = () => {
   const params = useParams();
@@ -13,7 +14,7 @@ const SideList = () => {
   const activitiesData = useSelector(
     (state) => state.activities.activitiesData,
   );
-  console.log(activitiesData);
+  const activitiesLoading = useSelector((state) => state.activities.isLoading);
 
   useEffect(() => {
     dispatch(fetchVideoDetailData(params.id));
@@ -23,7 +24,10 @@ const SideList = () => {
   }, [videoData]);
   return (
     <div className="flex-1 flex flex-col gap-4">
-      <SideListCard />
+      {activitiesLoading && <Spinner />}
+      {activitiesData.map((activity) => {
+        return <SideListCard activityData={activity} />;
+      })}
     </div>
   );
 };
