@@ -5,7 +5,6 @@ import { List } from "lucide-react";
 const Card = ({ videoData, isPlaylist, isChannel }) => {
   const videoId =
     videoData?.contentDetails?.upload?.videoId || videoData?.id?.videoId;
-  console.log(videoData);
 
   return (
     <Link

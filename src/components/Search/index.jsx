@@ -17,29 +17,38 @@ const Search = () => {
 
       // data.items[9].snippet.channelId
       const searchData = searchResponse.data.items;
-      const channelIds = searchData.map((s) => s.snippet.channelId).join(",");
-      const channelResponse = await api.get(
+      const channelIds = searchData
+        .map((s) => {
+          return s.snippet.channelId;
+        })
+        .join(",");
+      const videoIds = searchData
+        .map((s) => {
+          return s.id?.videoId !== null && s.id?.videoId;
+        })
+        .join(",");
+      const videoRes = await api.get(
+        `videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoIds}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`,
+      );
+      const videoData = videoRes.data.items;
+      const channelRes = await api.get(
         `channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelIds}&key=${
           import.meta.env.VITE_YOUTUBE_API_KEY
         }`,
       );
-      console.log(channelResponse);
-      const channelData = channelResponse.data.items;
-      // data.items[0].id
-      // data.items[0].snippet.thumbnails.default.url
-      const mergedData = searchData.map((s) => {
-        const matchVideo = channelData.find(
-          (c) => c.id === s.snippet.channelId,
+      const channelData = channelRes.data.items;
+      const mergedData = videoData.map((v) => {
+        const foundChannel = channelData.find(
+          (c) => c.id === v.snippet.channelId,
         );
         return {
-          ...s,
-          channelInfo: matchVideo
-            ? { avatarUrl: matchVideo.snippet.thumbnails.default.url }
-            : "",
+          ...v,
+          channelInfo: {
+            avatarUrl:
+              foundChannel && foundChannel.snippet.thumbnails.default.url,
+          },
         };
       });
-      console.log(mergedData);
-
       setSearchResult(mergedData);
     } catch (error) {
       console.log(error);
